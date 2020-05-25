@@ -55,7 +55,7 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 		this.args = args;
 		this.initialMulticaster = new SimpleApplicationEventMulticaster();
 		for (ApplicationListener<?> listener : application.getListeners()) {
-			this.initialMulticaster.addApplicationListener(listener);
+			this.initialMulticaster.addApplicationListener(listener); // 添加 ApplicationListeners
 		}
 	}
 
@@ -67,7 +67,7 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 	@Override
 	public void starting() {
 		this.initialMulticaster.multicastEvent(
-				new ApplicationStartingEvent(this.application, this.args));
+				new ApplicationStartingEvent(this.application, this.args)); // 广播 ApplicationStartingEvent 事件
 	}
 
 	@Override
@@ -79,31 +79,31 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 	@Override
 	public void contextPrepared(ConfigurableApplicationContext context) {
 		this.initialMulticaster.multicastEvent(new ApplicationContextInitializedEvent(
-				this.application, this.args, context));
+				this.application, this.args, context)); // 广播 ApplicationContextInitializedEvent 事件
 	}
 
 	@Override
 	public void contextLoaded(ConfigurableApplicationContext context) {
 		for (ApplicationListener<?> listener : this.application.getListeners()) {
 			if (listener instanceof ApplicationContextAware) {
-				((ApplicationContextAware) listener).setApplicationContext(context);
+				((ApplicationContextAware) listener).setApplicationContext(context); // 实现了 ApplicationContextAware 接口,调用 setApplicationContext()
 			}
 			context.addApplicationListener(listener);
 		}
 		this.initialMulticaster.multicastEvent(
-				new ApplicationPreparedEvent(this.application, this.args, context));
+				new ApplicationPreparedEvent(this.application, this.args, context)); // 广播 ApplicationPreparedEvent 事件
 	}
 
 	@Override
 	public void started(ConfigurableApplicationContext context) {
 		context.publishEvent(
-				new ApplicationStartedEvent(this.application, this.args, context));
+				new ApplicationStartedEvent(this.application, this.args, context)); // 广播 ApplicationStartedEvent 事件
 	}
 
 	@Override
 	public void running(ConfigurableApplicationContext context) {
 		context.publishEvent(
-				new ApplicationReadyEvent(this.application, this.args, context));
+				new ApplicationReadyEvent(this.application, this.args, context)); // 广播 ApplicationReadyEvent 事件
 	}
 
 	@Override

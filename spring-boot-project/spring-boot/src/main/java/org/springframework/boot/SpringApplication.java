@@ -266,16 +266,16 @@ public class SpringApplication {
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
 		setInitializers((Collection) getSpringFactoriesInstances(
-				ApplicationContextInitializer.class));
-		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
-		this.mainApplicationClass = deduceMainApplicationClass();
+				ApplicationContextInitializer.class)); // 从 spring.factories 文件中找出 key 为 ApplicationContextInitializer(初始化器) 的类并实例化
+		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class)); // 从 spring.factories 文件中找出 key 为 ApplicationListener 的类,并实例化后设置到 SpringApplication的listeners 属性中
+		this.mainApplicationClass = deduceMainApplicationClass(); // 查找启动类
 	}
 
 	private Class<?> deduceMainApplicationClass() {
 		try {
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
 			for (StackTraceElement stackTraceElement : stackTrace) {
-				if ("main".equals(stackTraceElement.getMethodName())) {
+				if ("main".equals(stackTraceElement.getMethodName())) { // main方法...
 					return Class.forName(stackTraceElement.getClassName());
 				}
 			}
@@ -299,7 +299,7 @@ public class SpringApplication {
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
 		configureHeadlessProperty();
 		SpringApplicationRunListeners listeners = getRunListeners(args);
-		listeners.starting();
+		listeners.starting(); // 启动 listeners
 		try {
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(
 					args);
@@ -313,14 +313,14 @@ public class SpringApplication {
 					new Class[] { ConfigurableApplicationContext.class }, context);
 			prepareContext(context, environment, listeners, applicationArguments,
 					printedBanner);
-			refreshContext(context);
-			afterRefresh(context, applicationArguments);
+			refreshContext(context); // 调用 spring 的 refresh()
+			afterRefresh(context, applicationArguments); // do nothing
 			stopWatch.stop();
 			if (this.logStartupInfo) {
 				new StartupInfoLogger(this.mainApplicationClass)
 						.logStarted(getApplicationLog(), stopWatch);
 			}
-			listeners.started(context);
+			listeners.started(context); // 广播 ApplicationStartedEvent 事件
 			callRunners(context, applicationArguments);
 		}
 		catch (Throwable ex) {
@@ -329,7 +329,7 @@ public class SpringApplication {
 		}
 
 		try {
-			listeners.running(context);
+			listeners.running(context); // 广播 ApplicationReadyEvent 事件
 		}
 		catch (Throwable ex) {
 			handleRunFailure(context, ex, exceptionReporters, null);
@@ -344,7 +344,7 @@ public class SpringApplication {
 		// Create and configure the environment
 		ConfigurableEnvironment environment = getOrCreateEnvironment();
 		configureEnvironment(environment, applicationArguments.getSourceArgs());
-		listeners.environmentPrepared(environment);
+		listeners.environmentPrepared(environment); // 广播 ApplicationEnvironmentPreparedEvent 事件
 		bindToSpringApplication(environment);
 		if (!this.isCustomEnvironment) {
 			environment = new EnvironmentConverter(getClassLoader())
@@ -370,8 +370,8 @@ public class SpringApplication {
 			ApplicationArguments applicationArguments, Banner printedBanner) {
 		context.setEnvironment(environment);
 		postProcessApplicationContext(context);
-		applyInitializers(context);
-		listeners.contextPrepared(context);
+		applyInitializers(context); // 调用 initializers.initialize()
+		listeners.contextPrepared(context); // 广播 ApplicationContextInitializedEvent
 		if (this.logStartupInfo) {
 			logStartupInfo(context.getParent() == null);
 			logStartupProfileInfo(context);
@@ -389,7 +389,7 @@ public class SpringApplication {
 		// Load the sources
 		Set<Object> sources = getAllSources();
 		Assert.notEmpty(sources, "Sources must not be empty");
-		load(context, sources.toArray(new Object[0]));
+		load(context, sources.toArray(new Object[0])); // 加载 beanDefinitions
 		listeners.contextLoaded(context);
 	}
 
@@ -413,7 +413,7 @@ public class SpringApplication {
 	private SpringApplicationRunListeners getRunListeners(String[] args) {
 		Class<?>[] types = new Class<?>[] { SpringApplication.class, String[].class };
 		return new SpringApplicationRunListeners(logger, getSpringFactoriesInstances(
-				SpringApplicationRunListener.class, types, this, args));
+				SpringApplicationRunListener.class, types, this, args)); // SpringApplicationRunListeners 持有多个 SpringApplicationRunListener
 	}
 
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type) {
@@ -423,7 +423,7 @@ public class SpringApplication {
 	private <T> Collection<T> getSpringFactoriesInstances(Class<T> type,
 			Class<?>[] parameterTypes, Object... args) {
 		ClassLoader classLoader = getClassLoader();
-		// Use names and ensure unique to protect against duplicates
+		// Use names and ensure unique to protect against duplicates. set去重
 		Set<String> names = new LinkedHashSet<>(
 				SpringFactoriesLoader.loadFactoryNames(type, classLoader));
 		List<T> instances = createSpringFactoriesInstances(type, parameterTypes,
@@ -575,7 +575,7 @@ public class SpringApplication {
 		return bannerPrinter.print(environment, this.mainApplicationClass, System.out);
 	}
 
-	/**
+	/** 创建 ApplicationContext
 	 * Strategy method used to create the {@link ApplicationContext}. By default this
 	 * method will respect any explicitly set application context or application context
 	 * class before falling back to a suitable default.
@@ -693,7 +693,7 @@ public class SpringApplication {
 		return LogFactory.getLog(this.mainApplicationClass);
 	}
 
-	/**
+	/** 加载 beanDefinitions
 	 * Load beans into the application context.
 	 * @param context the context to load beans into
 	 * @param sources the sources to load
@@ -775,7 +775,7 @@ public class SpringApplication {
 		((AbstractApplicationContext) applicationContext).refresh();
 	}
 
-	/**
+	/** 调用 ApplicationRunner 和 CommandLineRunner 的 run 方法
 	 * Called after the context has been refreshed.
 	 * @param context the application context
 	 * @param args the application arguments
@@ -1237,7 +1237,7 @@ public class SpringApplication {
 	}
 
 	/**
-	 * Static helper that can be used to run a {@link SpringApplication} from the
+	 * static helper that can be used to run a {@link springapplication} from the
 	 * specified source using default settings.
 	 * @param primarySource the primary source to load
 	 * @param args the application arguments (usually passed from a Java main method)
