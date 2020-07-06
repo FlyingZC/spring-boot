@@ -118,7 +118,7 @@ public class AutoConfigurationImportSelector
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
 		List<String> configurations = getCandidateConfigurations(annotationMetadata,
 				attributes);
-		configurations = removeDuplicates(configurations);
+		configurations = removeDuplicates(configurations); // 移除重复配置
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
 		checkExcludedClasses(configurations, exclusions);
 		configurations.removeAll(exclusions);
@@ -179,7 +179,7 @@ public class AutoConfigurationImportSelector
 	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
 			AnnotationAttributes attributes) {
 		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(
-				getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
+				getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader()); // 通过 spi 加载 spring.factories 里所有的 AutoConfiguration 配置类
 		Assert.notEmpty(configurations,
 				"No auto configuration classes found in META-INF/spring.factories. If you "
 						+ "are using a custom packaging, make sure that file is correct.");

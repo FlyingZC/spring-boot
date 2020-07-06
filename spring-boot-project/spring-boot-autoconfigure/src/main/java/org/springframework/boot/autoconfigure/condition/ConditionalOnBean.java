@@ -91,7 +91,7 @@ public @interface ConditionalOnBean {
 	 */
 	String[] name() default {};
 
-	/**
+	/** 决定是否考虑应用程序上下文层次结构(父上下文)的策略
 	 * Strategy to decide if the application context hierarchy (parent contexts) should be
 	 * considered.
 	 * @return the search strategy

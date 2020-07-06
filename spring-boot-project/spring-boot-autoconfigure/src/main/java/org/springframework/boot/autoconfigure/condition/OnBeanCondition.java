@@ -54,7 +54,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
-/**
+/** 检查是否存在特定bean
  * {@link Condition} that checks for the presence or absence of specific beans.
  *
  * @author Phillip Webb
@@ -119,7 +119,7 @@ class OnBeanCondition extends FilteringSpringBootCondition
 	public ConditionOutcome getMatchOutcome(ConditionContext context,
 			AnnotatedTypeMetadata metadata) {
 		ConditionMessage matchMessage = ConditionMessage.empty();
-		if (metadata.isAnnotated(ConditionalOnBean.class.getName())) {
+		if (metadata.isAnnotated(ConditionalOnBean.class.getName())) { // 必须有 @ConditionalOnBean 注解
 			BeanSearchSpec spec = new BeanSearchSpec(context, metadata,
 					ConditionalOnBean.class);
 			MatchResult matchResult = getMatchingBeans(context, spec);
@@ -173,8 +173,8 @@ class OnBeanCondition extends FilteringSpringBootCondition
 	protected final MatchResult getMatchingBeans(ConditionContext context,
 			BeanSearchSpec beans) {
 		ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
-		if (beans.getStrategy() == SearchStrategy.ANCESTORS) {
-			BeanFactory parent = beanFactory.getParentBeanFactory();
+		if (beans.getStrategy() == SearchStrategy.ANCESTORS) { // 策略: 搜索所有祖先，但不搜索当前上下文
+			BeanFactory parent = beanFactory.getParentBeanFactory(); // 获取父容器
 			Assert.isInstanceOf(ConfigurableListableBeanFactory.class, parent,
 					"Unable to use SearchStrategy.PARENTS");
 			beanFactory = (ConfigurableListableBeanFactory) parent;
@@ -185,7 +185,7 @@ class OnBeanCondition extends FilteringSpringBootCondition
 		List<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(
 				beans.getIgnoredTypes(), typeExtractor, beanFactory, context,
 				considerHierarchy);
-		for (String type : beans.getTypes()) {
+		for (String type : beans.getTypes()) { // 获取 @ConditionalOnBean 上的 type 属性配置
 			Collection<String> typeMatches = getBeanNamesForType(beanFactory, type,
 					typeExtractor, context.getClassLoader(), considerHierarchy);
 			typeMatches.removeAll(beansIgnoredByType);
@@ -196,7 +196,7 @@ class OnBeanCondition extends FilteringSpringBootCondition
 				matchResult.recordMatchedType(type, typeMatches);
 			}
 		}
-		for (String annotation : beans.getAnnotations()) {
+		for (String annotation : beans.getAnnotations()) { // 获取 @ConditionalOnBean 上的 annotations 属性配置
 			List<String> annotationMatches = Arrays
 					.asList(getBeanNamesForAnnotation(beanFactory, annotation,
 							context.getClassLoader(), considerHierarchy));
@@ -420,8 +420,8 @@ class OnBeanCondition extends FilteringSpringBootCondition
 				Class<?> annotationType, Class<?> genericContainer) {
 			this.annotationType = annotationType;
 			MultiValueMap<String, Object> attributes = metadata
-					.getAllAnnotationAttributes(annotationType.getName(), true);
-			collect(attributes, "name", this.names);
+					.getAllAnnotationAttributes(annotationType.getName(), true); // 获得 metadata 所有的属性所对应的值
+			collect(attributes, "name", this.names); // 从 attributes 中提取出 name 的值,赋值为 names
 			collect(attributes, "value", this.types);
 			collect(attributes, "type", this.types);
 			collect(attributes, "annotation", this.annotations);

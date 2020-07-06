@@ -114,13 +114,13 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 
 			@Override
 			public boolean matches(String className, ClassLoader classLoader) {
-				return !isPresent(className, classLoader);
+				return !isPresent(className, classLoader); // 判断给定的类不存在
 			}
 
 		};
 
 		public abstract boolean matches(String className, ClassLoader classLoader);
-
+		/** 判断给定的类是否存在 */
 		public static boolean isPresent(String className, ClassLoader classLoader) {
 			if (classLoader == null) {
 				classLoader = ClassUtils.getDefaultClassLoader();

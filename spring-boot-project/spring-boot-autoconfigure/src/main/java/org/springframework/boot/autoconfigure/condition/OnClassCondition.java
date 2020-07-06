@@ -48,7 +48,7 @@ class OnClassCondition extends FilteringSpringBootCondition {
 			AutoConfigurationMetadata autoConfigurationMetadata) {
 		// Split the work and perform half in a background thread. Using a single
 		// additional thread seems to offer the best performance. More threads make
-		// things worse
+		// things worse 把所有配置类分给两个线程处理
 		int split = autoConfigurationClasses.length / 2;
 		OutcomesResolver firstHalfResolver = createOutcomesResolver(
 				autoConfigurationClasses, 0, split, autoConfigurationMetadata);
@@ -81,22 +81,22 @@ class OnClassCondition extends FilteringSpringBootCondition {
 			AnnotatedTypeMetadata metadata) {
 		ClassLoader classLoader = context.getClassLoader();
 		ConditionMessage matchMessage = ConditionMessage.empty();
-		List<String> onClasses = getCandidates(metadata, ConditionalOnClass.class);
+		List<String> onClasses = getCandidates(metadata, ConditionalOnClass.class); // 1.ConditionalOnClass 注解处理. 获取类上 @ConditionalOnClass 注解里的条件值.如从 @ConditionalOnClass({ Servlet.class, ServerContainer.class }) 中获取 Servlet.class, ServerContainer.class
 		if (onClasses != null) {
 			List<String> missing = filter(onClasses, ClassNameFilter.MISSING,
-					classLoader);
-			if (!missing.isEmpty()) {
+					classLoader); // 判断条件类是否存在,不存在的添加到 missing 里
+			if (!missing.isEmpty()) { // 有不存在的条件
 				return ConditionOutcome
 						.noMatch(ConditionMessage.forCondition(ConditionalOnClass.class)
 								.didNotFind("required class", "required classes")
-								.items(Style.QUOTE, missing));
+								.items(Style.QUOTE, missing)); // 不匹配 condition
 			}
 			matchMessage = matchMessage.andCondition(ConditionalOnClass.class)
 					.found("required class", "required classes").items(Style.QUOTE,
-							filter(onClasses, ClassNameFilter.PRESENT, classLoader));
+							filter(onClasses, ClassNameFilter.PRESENT, classLoader)); // 匹配 condition
 		}
 		List<String> onMissingClasses = getCandidates(metadata,
-				ConditionalOnMissingClass.class);
+				ConditionalOnMissingClass.class); // 2. ConditionalOnMissingClass 注解处理
 		if (onMissingClasses != null) {
 			List<String> present = filter(onMissingClasses, ClassNameFilter.PRESENT,
 					classLoader);

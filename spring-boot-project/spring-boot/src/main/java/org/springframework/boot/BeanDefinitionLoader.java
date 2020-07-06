@@ -154,7 +154,7 @@ class BeanDefinitionLoader {
 					GroovyBeanDefinitionSource.class);
 			load(loader);
 		}
-		if (isComponent(source)) {
+		if (isComponent(source)) { // 含有 @Component 注解
 			this.annotatedReader.register(source);
 			return 1;
 		}
